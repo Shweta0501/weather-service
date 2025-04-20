@@ -1,4 +1,4 @@
-# 🌦️ Weather Service - Zai Code Challenge
+# 🌦️ Weather Service - Teamified Code Challenge
 
 A Spring Boot-based HTTP service that reports real-time weather information for **Melbourne**, with automatic **failover** between weather providers and **caching** for performance and reliability.
 
