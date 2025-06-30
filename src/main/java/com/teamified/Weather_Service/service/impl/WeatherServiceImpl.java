@@ -1,5 +1,6 @@
 package com.teamified.Weather_Service.service.impl;
 
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import com.teamified.Weather_Service.client.OpenWeatherMapClient;
@@ -12,10 +13,16 @@ public class WeatherServiceImpl implements WeatherService {
 
     private final WeatherStackClient weatherStackClient;
     private final OpenWeatherMapClient openWeatherMapClient;
+    private final CacheManager cacheManager;
 
-    public WeatherServiceImpl(WeatherStackClient weatherStackClient, OpenWeatherMapClient openWeatherMapClient) {
+    public WeatherServiceImpl(
+        WeatherStackClient weatherStackClient,
+        OpenWeatherMapClient openWeatherMapClient,
+        CacheManager cacheManager
+    ) {
         this.weatherStackClient = weatherStackClient;
         this.openWeatherMapClient = openWeatherMapClient;
+        this.cacheManager = cacheManager;
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.teamified.Weather_Service.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import com.teamified.Weather_Service.model.WeatherResponse;
 import com.teamified.Weather_Service.service.WeatherService;
 import org.springframework.web.bind.annotation.*;
@@ -21,10 +19,10 @@ public class WeatherController {
     @GetMapping("/weather")
     public ResponseEntity<WeatherResponse> getWeather(@RequestParam String city) {
         try {
-            WeatherResponse weatherResponse = weatherService.getWeather(city);
-            return new ResponseEntity<>(weatherResponse, HttpStatus.OK);
+            WeatherResponse response = weatherService.getWeather(city);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
