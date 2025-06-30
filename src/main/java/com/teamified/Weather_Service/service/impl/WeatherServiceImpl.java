@@ -7,6 +7,8 @@ import com.teamified.Weather_Service.client.OpenWeatherMapClient;
 import com.teamified.Weather_Service.client.WeatherStackClient;
 import com.teamified.Weather_Service.model.WeatherResponse;
 import com.teamified.Weather_Service.service.WeatherService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class WeatherServiceImpl implements WeatherService {
@@ -14,6 +16,7 @@ public class WeatherServiceImpl implements WeatherService {
     private final WeatherStackClient weatherStackClient;
     private final OpenWeatherMapClient openWeatherMapClient;
     private final CacheManager cacheManager;
+    private static final Logger logger = LoggerFactory.getLogger(WeatherServiceImpl.class);
 
     public WeatherServiceImpl(
         WeatherStackClient weatherStackClient,
@@ -29,6 +32,7 @@ public class WeatherServiceImpl implements WeatherService {
     @Cacheable(value = "weather", key = "#city")
     public WeatherResponse getWeather(String city) {
         try {
+            logger.info("Fetching weather data for {}", city);
             return weatherStackClient.getWeather(city);
         } catch (Exception e) {
             try {
