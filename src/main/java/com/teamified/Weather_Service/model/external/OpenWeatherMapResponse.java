@@ -1,46 +1,54 @@
 package com.teamified.Weather_Service.model.external;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OpenWeatherMapResponse {
-    private Wind wind;
+
+    @JsonProperty("code")
+    private String code;  // safer as String, because API sends "404" sometimes
+
+    @JsonProperty("message")
+    private String message;
+
     private Main main;
 
-    public Wind getWind() {
-        return wind;
+    private Wind wind;
+
+    // getters
+    public String getCode() {
+        return code;
     }
 
-    public void setWind(Wind wind) {
-        this.wind = wind;
+    public String getMessage() {
+        return message;
     }
 
     public Main getMain() {
         return main;
     }
 
-    public void setMain(Main main) {
-        this.main = main;
+    public Wind getWind() {
+        return wind;
     }
 
-    public static class Wind {
-        private int speed;
-
-        public int getSpeed() {
-            return speed;
-        }
-
-        public void setSpeed(int speed) {
-            this.speed = speed;
-        }
-    }
-
+    // nested classes
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Main {
-        private int temp;
+        private double temp;
 
-        public int getTemp() {
+        public double getTemp() {
             return temp;
         }
+    }
 
-        public void setTemp(int temp) {
-            this.temp = temp;
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Wind {
+        private double speed;
+
+        public double getSpeed() {
+            return speed;
         }
     }
 }

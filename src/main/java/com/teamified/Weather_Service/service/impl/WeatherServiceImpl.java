@@ -34,6 +34,8 @@ public class WeatherServiceImpl implements WeatherService {
     public WeatherResponse getWeather(String city) {
         logger.info("Cache MISS or expired — fetching fresh data for city: {}", city);
 
+        StringBuilder failureReasons = new StringBuilder();
+
         try {
             logger.info("Attempting to fetch data from WeatherStack for city: {}", city);
             WeatherResponse response = weatherStackClient.getWeather(city);
@@ -41,8 +43,10 @@ public class WeatherServiceImpl implements WeatherService {
             return response;
         } catch (WeatherServiceException ex) {
             logger.warn("WeatherStack failed for city: {}. Reason: {}", city, ex.getMessage());
+            failureReasons.append("WeatherStack failed: ").append(ex.getMessage()).append("; ");
         } catch (Exception ex) {
             logger.warn("Unexpected WeatherStack error for city {}: {}", city, ex.getMessage());
+            failureReasons.append("WeatherStack unexpected error: ").append(ex.getMessage()).append("; ");
         }
 
         try {
@@ -52,11 +56,14 @@ public class WeatherServiceImpl implements WeatherService {
             return response;
         } catch (WeatherServiceException ex) {
             logger.warn("OpenWeatherMap failed for city: {}. Reason: {}", city, ex.getMessage());
+            failureReasons.append("OpenWeatherMap failed: ").append(ex.getMessage()).append("; ");
         } catch (Exception ex) {
             logger.error("Unexpected OpenWeatherMap error for city {}: {}", city, ex.getMessage());
+            failureReasons.append("OpenWeatherMap unexpected error: ").append(ex.getMessage()).append("; ");
         }
 
-        logger.error("Both WeatherStack and OpenWeatherMap failed for city: {}", city);
-        throw new WeatherServiceException("Both weather providers failed for city: " + city);
+        logger.error("Both WeatherStack and OpenWeatherMap failed for city: {}. Reasons: {}", city, failureReasons.toString());
+        throw new WeatherServiceException("Both weather providers failed. " + failureReasons.toString());
     }
+
 }

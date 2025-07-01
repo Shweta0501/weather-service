@@ -1,23 +1,27 @@
 package com.teamified.Weather_Service.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamified.Weather_Service.exception.WeatherServiceException;
-import com.teamified.Weather_Service.mapper.OpenWeatherMapMapper;
 import com.teamified.Weather_Service.model.WeatherResponse;
+import com.teamified.Weather_Service.model.external.OpenWeatherMapResponse;
+import com.teamified.Weather_Service.service.impl.WeatherServiceImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.http.client.ClientHttpResponse;
+
+import java.io.IOException;
 
 @Component
 public class OpenWeatherMapClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenWeatherMapClient.class);
-
     private final RestTemplate restTemplate;
-    private final OpenWeatherMapMapper mapper;
+    private final ObjectMapper objectMapper;
+    private static final Logger logger = LoggerFactory.getLogger(WeatherServiceImpl.class);
 
     @Value("${openweathermap.api.url}")
     private String apiUrl;
@@ -25,30 +29,45 @@ public class OpenWeatherMapClient {
     @Value("${openweathermap.api.key}")
     private String apiKey;
 
-    public OpenWeatherMapClient(RestTemplate restTemplate, OpenWeatherMapMapper mapper) {
+    public OpenWeatherMapClient(RestTemplate restTemplate, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
-        this.mapper = mapper;
+        this.objectMapper = objectMapper;
+
+        // Disable automatic error throwing
+        this.restTemplate.setErrorHandler(new NoOpResponseErrorHandler());
     }
 
     public WeatherResponse getWeather(String city) {
+        String url = String.format("%s?q=%s,AU&appid=%s&units=metric", apiUrl, city, apiKey);
         try {
-            String url = UriComponentsBuilder.fromUriString(apiUrl)
-                    .queryParam("q", city + ",AU")
-                    .queryParam("appid", apiKey)
-                    .queryParam("units", "metric")
-                    .toUriString();
-
-            logger.info("Calling OpenWeatherMap API: {}", url);
-
             String response = restTemplate.getForObject(url, String.class);
+            OpenWeatherMapResponse weatherMapResponse = objectMapper.readValue(response, OpenWeatherMapResponse.class);
 
-            logger.debug("Received response from OpenWeatherMap: {}", response);
+            if (weatherMapResponse.getCode() != "200") {
+                throw new WeatherServiceException("OpenWeatherMap API returned error: " + weatherMapResponse.getMessage());
+            }
 
-            return mapper.map(response);
+            return new WeatherResponse(
+                weatherMapResponse.getWind().getSpeed(),
+                weatherMapResponse.getMain().getTemp()
+            );
 
         } catch (Exception e) {
-            logger.error("Error fetching weather data from OpenWeatherMap for city: {}", city, e);
-            throw new WeatherServiceException("Failed to get weather from OpenWeatherMap", e);
+            // You control logging — no stacktrace unless you want it
+            logger.error("Error fetching weather data from OpenWeatherMap for city: {}. Reason: {}", city, e.getMessage());
+            throw new WeatherServiceException("OpenWeatherMap error: " + e.getMessage(), e);
+        }
+    }
+
+    private static class NoOpResponseErrorHandler implements ResponseErrorHandler {
+        @Override
+        public boolean hasError(ClientHttpResponse response) throws IOException {
+            return false; // Treat all responses as non-error
+        }
+
+        @Override
+        public void handleError(ClientHttpResponse response) throws IOException {
+            // Do nothing
         }
     }
 }
