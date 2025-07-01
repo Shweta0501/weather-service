@@ -2,6 +2,7 @@ package com.teamified.Weather_Service.service;
 
 import com.teamified.Weather_Service.client.OpenWeatherMapClient;
 import com.teamified.Weather_Service.client.WeatherStackClient;
+import com.teamified.Weather_Service.exception.WeatherServiceException;
 import com.teamified.Weather_Service.model.WeatherResponse;
 import com.teamified.Weather_Service.service.impl.WeatherServiceImpl;
 
@@ -11,6 +12,9 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -69,19 +73,23 @@ public class WeatherServiceImplTest {
     }
 
     @Test
-    void testBothProvidersFail() throws Exception {
-        // Both providers fail
+    void testBothProvidersFail() {
         when(weatherStackClient.getWeather("melbourne"))
                 .thenThrow(new RuntimeException("Primary provider failed"));
-
         when(openWeatherMapClient.getWeather("melbourne"))
                 .thenThrow(new RuntimeException("Secondary provider failed"));
 
-        WeatherResponse result = weatherServiceImpl.getWeather("melbourne");
+        WeatherServiceException ex = assertThrows(
+                WeatherServiceException.class,
+                () -> weatherServiceImpl.getWeather("melbourne")
+        );
 
-        // Expect the fallback response (0,0) as per the implementation
-        assertEquals(0, result.getWindSpeed());
-        assertEquals(0, result.getTemperatureDegrees());
+        // Print or log message if needed
+        System.out.println("Actual exception message: " + ex.getMessage());
+
+        // Make an assertion that matches your actual message
+        assertNotNull(ex.getMessage());
+        assertTrue(ex.getMessage().length() > 0);
 
         verify(weatherStackClient, times(1)).getWeather("melbourne");
         verify(openWeatherMapClient, times(1)).getWeather("melbourne");

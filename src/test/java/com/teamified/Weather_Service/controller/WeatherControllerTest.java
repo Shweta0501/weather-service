@@ -20,19 +20,17 @@ class WeatherControllerTest {
     @BeforeEach
     void setUp() {
         weatherService = mock(WeatherService.class);
+        cacheManager = mock(CacheManager.class);
         weatherController = new WeatherController(weatherService, cacheManager);
     }
 
     @Test
     void testGetWeatherSuccess() {
-        // Arrange
         WeatherResponse mockResponse = new WeatherResponse(20, 29);
         when(weatherService.getWeather("melbourne")).thenReturn(mockResponse);
 
-        // Act
         ResponseEntity<WeatherResponse> responseEntity = weatherController.getWeather("melbourne");
 
-        // Assert
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
         assertEquals(20, responseEntity.getBody().getWindSpeed());
@@ -42,13 +40,10 @@ class WeatherControllerTest {
 
     @Test
     void testGetWeatherServiceFailure() {
-        // Arrange
         when(weatherService.getWeather("melbourne")).thenThrow(new RuntimeException("Service failure"));
 
-        // Act
         ResponseEntity<WeatherResponse> responseEntity = weatherController.getWeather("melbourne");
 
-        // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
         assertNull(responseEntity.getBody());
         verify(weatherService, times(1)).getWeather("melbourne");
