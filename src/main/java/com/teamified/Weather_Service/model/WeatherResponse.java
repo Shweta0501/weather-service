@@ -2,29 +2,29 @@ package com.teamified.Weather_Service.model;
 
 public class WeatherResponse {
 
-    private int windSpeed;
-    private int temperatureDegrees;
+    private double windSpeed;
+    private double temperatureDegrees;
 
     public WeatherResponse() {}
 
-    public WeatherResponse(int windSpeed, int temperatureDegrees) {
+    public WeatherResponse(double windSpeed, double temperatureDegrees) {
         this.windSpeed = windSpeed;
         this.temperatureDegrees = temperatureDegrees;
     }
 
-    public int getWindSpeed() {
+    public double getWindSpeed() {
         return windSpeed;
     }
 
-    public void setWindSpeed(int windSpeed) {
+    public void setWindSpeed(double windSpeed) {
         this.windSpeed = windSpeed;
     }
 
-    public int getTemperatureDegrees() {
+    public double getTemperatureDegrees() {
         return temperatureDegrees;
     }
 
-    public void setTemperatureDegrees(int temperatureDegrees) {
+    public void setTemperatureDegrees(double temperatureDegrees) {
         this.temperatureDegrees = temperatureDegrees;
     }
 }

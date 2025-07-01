@@ -38,8 +38,7 @@ A Spring Boot-based HTTP service that reports real-time weather information for 
 
 ## 🏃 Running the Project Locally
 
-### 1. Clone the repo
-
+### 1️⃣ Clone the repo
 ```bash
-git clone https://github.com/your-username/weather-service.git
+git clone https://github.com/Shweta0501/weather-service.git
 cd weather-service
