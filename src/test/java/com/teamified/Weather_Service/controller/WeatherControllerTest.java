@@ -4,6 +4,7 @@ import com.teamified.Weather_Service.model.WeatherResponse;
 import com.teamified.Weather_Service.service.WeatherService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -14,11 +15,12 @@ class WeatherControllerTest {
 
     private WeatherService weatherService;
     private WeatherController weatherController;
+    private CacheManager cacheManager;
 
     @BeforeEach
     void setUp() {
         weatherService = mock(WeatherService.class);
-        weatherController = new WeatherController(weatherService);
+        weatherController = new WeatherController(weatherService, cacheManager);
     }
 
     @Test

@@ -5,6 +5,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import com.teamified.Weather_Service.client.OpenWeatherMapClient;
 import com.teamified.Weather_Service.client.WeatherStackClient;
+import com.teamified.Weather_Service.exception.WeatherServiceException;
 import com.teamified.Weather_Service.model.WeatherResponse;
 import com.teamified.Weather_Service.service.WeatherService;
 import org.slf4j.Logger;
@@ -31,15 +32,31 @@ public class WeatherServiceImpl implements WeatherService {
     @Override
     @Cacheable(value = "weather", key = "#city")
     public WeatherResponse getWeather(String city) {
+        logger.info("Cache MISS or expired — fetching fresh data for city: {}", city);
+
         try {
-            logger.info("Fetching weather data for {}", city);
-            return weatherStackClient.getWeather(city);
-        } catch (Exception e) {
-            try {
-                return openWeatherMapClient.getWeather(city);
-            } catch (Exception ex) {
-                return new WeatherResponse(0, 0);
-            }
+            logger.info("Attempting to fetch data from WeatherStack for city: {}", city);
+            WeatherResponse response = weatherStackClient.getWeather(city);
+            logger.info("Successfully fetched data from WeatherStack for city: {}", city);
+            return response;
+        } catch (WeatherServiceException ex) {
+            logger.warn("WeatherStack failed for city: {}. Reason: {}", city, ex.getMessage());
+        } catch (Exception ex) {
+            logger.warn("Unexpected WeatherStack error for city {}: {}", city, ex.getMessage());
         }
+
+        try {
+            logger.info("Falling back to OpenWeatherMap for city: {}", city);
+            WeatherResponse response = openWeatherMapClient.getWeather(city);
+            logger.info("Successfully fetched data from OpenWeatherMap for city: {}", city);
+            return response;
+        } catch (WeatherServiceException ex) {
+            logger.warn("OpenWeatherMap failed for city: {}. Reason: {}", city, ex.getMessage());
+        } catch (Exception ex) {
+            logger.error("Unexpected OpenWeatherMap error for city {}: {}", city, ex.getMessage());
+        }
+
+        logger.error("Both WeatherStack and OpenWeatherMap failed for city: {}", city);
+        throw new WeatherServiceException("Both weather providers failed for city: " + city);
     }
 }
