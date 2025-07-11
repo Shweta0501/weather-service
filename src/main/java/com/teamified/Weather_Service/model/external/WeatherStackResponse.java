@@ -15,24 +15,24 @@ public class WeatherStackResponse {
 
     public static class Current {
         @JsonProperty("temperature")
-        private int temperature;
+        private double temperature;
 
         @JsonProperty("wind_speed")
-        private int windSpeed;
+        private double windSpeed;
 
-        public int getTemperature() {
+        public double getTemperature() {
             return temperature;
         }
 
-        public void setTemperature(int temperature) {
+        public void setTemperature(double temperature) {
             this.temperature = temperature;
         }
 
-        public int getWindSpeed() {
+        public double getWindSpeed() {
             return windSpeed;
         }
 
-        public void setWindSpeed(int windSpeed) {
+        public void setWindSpeed(double windSpeed) {
             this.windSpeed = windSpeed;
         }
     }

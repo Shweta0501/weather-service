@@ -6,24 +6,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OpenWeatherMapResponse {
 
-    @JsonProperty("code")
-    private String code;  // safer as String, because API sends "404" sometimes
+    @JsonProperty("main")
+    private Main main;
+
+    @JsonProperty("wind")
+    private Wind wind;
+
+    @JsonProperty("cod")
+    private int code;
 
     @JsonProperty("message")
     private String message;
-
-    private Main main;
-
-    private Wind wind;
-
-    // getters
-    public String getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
 
     public Main getMain() {
         return main;
@@ -33,9 +26,17 @@ public class OpenWeatherMapResponse {
         return wind;
     }
 
-    // nested classes
+    public String getMessage() {
+        return message;
+    }
+
+    public String getCode() {
+        return String.valueOf(code);
+    }
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Main {
+        @JsonProperty("temp")
         private double temp;
 
         public double getTemp() {
@@ -45,6 +46,7 @@ public class OpenWeatherMapResponse {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Wind {
+        @JsonProperty("speed")
         private double speed;
 
         public double getSpeed() {

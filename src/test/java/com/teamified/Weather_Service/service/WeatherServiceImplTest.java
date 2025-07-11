@@ -87,7 +87,7 @@ public class WeatherServiceImplTest {
         // Print or log message if needed
         System.out.println("Actual exception message: " + ex.getMessage());
 
-        // Make an assertion that matches your actual message
+        // Make an assertion that matches actual message
         assertNotNull(ex.getMessage());
         assertTrue(ex.getMessage().length() > 0);
 
